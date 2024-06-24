@@ -2,7 +2,7 @@
 module sui_place::place {
     
     use std::vector;
-    use sui::object::{UID, new};
+    use sui::object::{UID, new, uid_to_address};
     use sui::tx_context::{TxContext};
     use sui::transfer::share_object;
     use sui::dynamic_object_field;
@@ -90,5 +90,27 @@ module sui_place::place {
              y % 200);
         // place the pixel in the quadrant
         *pixel = colour;
+    }
+
+    public fun get_quadrants(place: &Place): vector<address>{
+        
+        let mut addresses = vector::empty<address>();
+
+        // go from 0 to 3
+        let mut  i = 0;
+
+        // lookup quadrant in object mapping from quadrant id
+        // append id of each quadrant to vector
+        while (i < 4){
+            
+            let quadrant = dynamic_object_field::borrow<u8, Quadrant>(&place.id, i);
+            let quadrant_address = uid_to_address(&quadrant.id);
+            vector::push_back(&mut addresses, quadrant_address);
+            i = i+1;
+            
+        };
+
+        // return vector
+        addresses
     }
 }
